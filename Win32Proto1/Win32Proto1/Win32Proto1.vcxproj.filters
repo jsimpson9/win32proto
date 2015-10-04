@@ -40,7 +40,16 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <Image Include="spade-icon.jpg">
+    <Image Include="club-icon.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="diamond-icon.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="heart-icon.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="spade-icon.png">
       <Filter>Resource Files</Filter>
     </Image>
   </ItemGroup>

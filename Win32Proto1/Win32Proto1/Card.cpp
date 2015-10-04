@@ -2,12 +2,10 @@
 #include <windows.h>
 #include "tchar.h"
 
-// #include <atlconv.h>
+#include "gdiplus.h"
+#include "gdiplusgraphics.h"
 
-// static TCHAR CLUB_TCHAR[]		= _T("?");
-// static TCHAR DIAMOND_TCHAR[]	= _T("?");
-// static TCHAR HEART_TCHAR[]		= _T("?");
-// static TCHAR SPADE_TCHAR[]		= _T("?");
+using namespace Gdiplus;
 
 
 Card::Card(int face, int suit) {
@@ -43,31 +41,11 @@ bool Card::isFacedown() {
 }
 
 //
-// More notes on Handle to Devcie Context (HDC) and implementing
+// More notes on Handle to Device Context (HDC) and implementing
 // a Paint() method
 // http://www.codeproject.com/Articles/1988/Guide-to-WIN-Paint-for-Beginners
 //
 void Card::Paint(HDC hdc, int x, int y) {
-
-
-	char valueChar[10];
-	
-	/*
-	switch (_suit) {
-		case CLUB:
-			break;
-		case DIAMOND:
-			strcpy(suitChar,"?");
-			break;
-		case HEART:
-			strcpy(suitChar,"?");
-			break;
-		case SPADE:
-			strcpy(suitChar,"?");
-			break;
-	}
-	*/
-
 
 	HBRUSH whiteBrush = CreateSolidBrush(RGB(255, 255, 255));
 	HBRUSH blackBrush = CreateSolidBrush(RGB(0, 0, 0));
@@ -95,8 +73,12 @@ void Card::Paint(HDC hdc, int x, int y) {
 
 	FillRect(hdc, &rect, whiteBrush);
 
+	//
+	// Display face value
+	//
+
 	TCHAR buff[10];
-	// TextOutW(hdc, x+3, y+3, buff, wsprintf(buff, L"%c", valueChar));
+	char valueChar[10];
 
 	switch (_face) {
 		case ACE:
@@ -118,10 +100,42 @@ void Card::Paint(HDC hdc, int x, int y) {
 			TextOutW(hdc, x + 3, y + 3, L"10", 2);
 			break;
 		default:
-			TextOutW(hdc, x + 3, y + 3, L"A", 1);
+			//
+			// It must be a digit between 2 and 9, so print it to a 
+			// buffer TextOutW() can take as a parameter.
+			//
 			TextOutW(hdc, x+3, y+3, buff, wsprintf(buff, L"%d", _face));
 	}
 
+	//
+	// Now display the graphic representing the suit. 
+	//
+
+	Graphics graphics(hdc);
+
+	Image imageClub(	L"club-icon.png"	);
+	Image imageDiamond(	L"diamond-icon.png"	);
+	Image imageHeart(	L"heart-icon.png"	);
+	Image imageSpade(	L"spade-icon.png"	);
+
+	// Pen pen(Color(255, 255, 0, 0), 2);
+
+	Rect destRect(x + 2, y+20 + 2, 15, 15);
+
+	switch (_suit) {
+		case CLUBS:
+			graphics.DrawImage(&imageClub, destRect);
+			break;
+		case DIAMONDS:
+			graphics.DrawImage(&imageDiamond, destRect);
+			break;
+		case HEARTS:
+			graphics.DrawImage(&imageHeart, destRect);
+			break;
+		case SPADES:
+			graphics.DrawImage(&imageSpade, destRect);
+			break;
+	}
 
 }
 

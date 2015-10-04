@@ -3,13 +3,20 @@
 #include <string.h>
 #include <tchar.h>
 
+#include "gdiplus.h"
+#include "gdiplusgraphics.h"
+
+using namespace Gdiplus;
+
 #include "GameEngine.h"
 
 static TCHAR szWindowClass[] = _T("win32proto");
 static TCHAR szTitle[] = _T("Eta Blackjack");
 
-HINSTANCE hInst;
-GameEngine* gameEngine;
+HINSTANCE	hInst;
+GameEngine*	gameEngine;
+ULONG_PTR	gdiplusToken;
+
 
 //
 // Function prototypes
@@ -26,6 +33,16 @@ int WINAPI WinMain(	HINSTANCE hInstance,
 					LPSTR lpCmdLine,
 					int nCmdShow)
 {
+
+	//
+	// Initialize GDI+
+	// http://supercomputingblog.com/graphics/getting-started-with-gdi-in-visual-studio/
+	//
+	// Initialize this first, otherwise none of the GDI APIs work.
+	//
+	GdiplusStartupInput gdiplusStartupInput;
+	GdiplusStartup(&gdiplusToken, &gdiplusStartupInput, NULL);
+
 
 	//
 	// The WNDCLASSEX structure holdinfo about the 
@@ -145,6 +162,12 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
 	case WM_DESTROY:
 
+		//
+		// Shutdown GDI+
+		//
+		GdiplusShutdown(gdiplusToken);
+		
+		
 		delete gameEngine;
 
 		PostQuitMessage(0);
