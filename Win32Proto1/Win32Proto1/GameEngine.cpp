@@ -1,4 +1,5 @@
 #include "GameEngine.h"
+#include "Table.h"
 #include "Card.h"
 #include <tchar.h>
 #include <string>
@@ -11,13 +12,24 @@ using namespace Gdiplus;
 //
 // Game Engine constructor
 //
-GameEngine::GameEngine(HINSTANCE hInst)
+GameEngine::GameEngine(HINSTANCE hInst, HWND hWnd)
 {
 	// Create a new Game Engine
+	_gameState = STATE_INITIAL;
 
 	// Store the handle to our application instance hInst
 	_hInst = hInst;
+	_hWnd = hWnd;
+
+	_table = new Table();
+
 }
+
+Table* GameEngine::getTable() { return _table; }
+
+HWND GameEngine::getHWnd() { return _hWnd; }
+
+void GameEngine::setState(int state) { _gameState = state; }
 
 //
 // Render game
@@ -26,45 +38,39 @@ void GameEngine::Paint(HDC hdc) {
 
 	TCHAR buff[512];
 
-	TextOutW(hdc, 200, 60, buff, wsprintf(buff, L"Eta Blackjack!"));
-	
-	Card* card1 = new Card(Card::ACE, Card::SPADES, true);
-	card1->Paint(hdc, 30, 30);
+	//
+	// Clear window
+	//
+	HBRUSH whiteBrush = CreateSolidBrush(RGB(255, 255, 255));
+	RECT rect;
 
-	Card* card2 = new Card(Card::ACE, Card::SPADES);
-	card2->Paint(hdc, 50, 50);
+	rect.left =		0;
+	rect.top =		0;
+	rect.right =	Table::TABLE_WIDTH;
+	rect.bottom =	Table::TABLE_HEIGHT;
 
-	Card* card3 = new Card(Card::TWO, Card::HEARTS);
-	card3->Paint(hdc, 30, 200);
-
-	Card* card4 = new Card(Card::TEN, Card::DIAMONDS);
-	card4->Paint(hdc, 50, 220);
-
-	Card* card5 = new Card(Card::TEN, Card::CLUBS);
-	card5->Paint(hdc, 70, 240);
+	FillRect(hdc, &rect, whiteBrush);
 
 	//
-	// Try some Gdiplus APIs...
+	// Now draw stuff based on the game state
 	//
-	
-	// Graphics graphics(hdc);
-	// Image image(L"club-icon.png");
-	// Image image(L"diamond-icon.png");
-	// Image image(L"heart-icon.png");
-	// Image image(L"spade-icon.png");
-	// Pen pen(Color(255, 255, 0, 0), 2);
-	// 
-	// Rect destRect(50+2, 70+2, 15, 15);
-	// graphics.DrawRectangle(&pen, destRect);
-	// graphics.DrawImage(&image, destRect);
-	
-	TextOut(hdc, 200, 160, buff, wsprintf(buff, L"Welcome!"));
 
-	delete card1;
-	delete card2;
-	delete card3;
-	delete card4;
-	delete card5;
+	switch (_gameState) {
+
+		case STATE_INITIAL:
+			// Show introduction...
+			TextOutW(hdc, 200, 60, buff, wsprintf(buff, L"Eta Blackjack!"));
+			TextOut(hdc, 200, 160, buff, wsprintf(buff, L"Welcome!"));
+			break;
+
+		case STATE_PLAYING:
+			//
+			// render card playing table
+			//
+			_table->Paint(hdc);
+			break;
+	}
+
 
 }
 

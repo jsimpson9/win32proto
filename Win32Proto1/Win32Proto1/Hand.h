@@ -17,6 +17,8 @@ public:
 
 	Hand(std::vector<Card*>* cards);
 
+	void Paint(HDC hdc, int x, int y);
+
 	std::vector<int>* GetValues();
 
 	std::vector<Card*>* GetCards();

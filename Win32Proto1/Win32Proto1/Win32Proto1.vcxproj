@@ -22,12 +22,14 @@
     <ClCompile Include="Card.cpp" />
     <ClCompile Include="GameEngine.cpp" />
     <ClCompile Include="Hand.cpp" />
+    <ClCompile Include="Table.cpp" />
     <ClCompile Include="Win32ProtoMainClass.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Card.h" />
     <ClInclude Include="GameEngine.h" />
     <ClInclude Include="Hand.h" />
+    <ClInclude Include="Table.h" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="club-icon.png" />

@@ -1,3 +1,4 @@
+#include <windows.h>
 #include "Hand.h"
 #include "Card.h"
 
@@ -71,3 +72,18 @@ bool Hand::isBlackjack() {
 std::vector<Card*>* Hand::GetCards() {
 	return _cards;
 }
+
+void Hand::Paint(HDC hdc, int x, int y) {
+
+	int xOffset = 0;
+	int yOffset = 0;
+
+	for (unsigned int i = 0; i < _cards->size(); i++) {
+		Card* card = _cards->at(i);
+		card->Paint(hdc, x + xOffset, y + yOffset);
+		xOffset += 20;
+		yOffset += 20;
+	}
+
+}
+
