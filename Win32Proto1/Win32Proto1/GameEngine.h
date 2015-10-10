@@ -20,9 +20,10 @@ private:
 
 public:
 
-	static constexpr int STATE_INITIAL =		0;
-	static constexpr int STATE_PLAYING =		1;
-	static constexpr int STATE_FINISHED =	2;
+	static constexpr int STATE_INITIAL			= 0;
+	static constexpr int STATE_CREATE_PROFILE	= 1;
+	static constexpr int STATE_PLAYING			= 2;
+	static constexpr int STATE_FINISHED			= 3;
 
 	GameEngine(HINSTANCE hInst, HWND hWnd);
 

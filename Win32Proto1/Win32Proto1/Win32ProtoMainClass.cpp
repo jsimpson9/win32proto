@@ -21,20 +21,23 @@ HINSTANCE	hInst;
 GameEngine*	gameEngine;
 ULONG_PTR	gdiplusToken;
 
-#define BUTTON_HIT_ID		1001
-#define BUTTON_STAND_ID		1002
-#define BUTTON_BET_ID		1003
-#define BUTTON_DEAL_ID		1004
+#define BUTTON_CREATE_PROFILE_ID		1001
+#define BUTTON_HIT_ID					1002
+#define BUTTON_STAND_ID					1003
+#define BUTTON_BET_ID					1004
+#define BUTTON_DEAL_ID					1005
 
 
 //
 // Function prototypes
 //
 LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
+LRESULT CALLBACK CreateProfileButtonProc(HWND, UINT, WPARAM, LPARAM);
 LRESULT CALLBACK DealButtonProc(HWND, UINT, WPARAM, LPARAM);
 LRESULT CALLBACK HitButtonProc(HWND, UINT, WPARAM, LPARAM);
 LRESULT CALLBACK StandButtonProc(HWND, UINT, WPARAM, LPARAM);
 
+WNDPROC oldCreateProfileButtonProc;
 WNDPROC oldDealButtonProc;
 WNDPROC oldHitButtonProc;
 WNDPROC oldStandButtonProc;
@@ -166,9 +169,10 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
 	PAINTSTRUCT ps;
 	HDC hdc;
+	static HWND hCreateProfileButton;
+	static HWND hDealButton;
 	static HWND hHitButton;
 	static HWND hStandButton;
-	static HWND hDealButton;
 
 	switch (message)
 	{
@@ -179,9 +183,23 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	//
 	case WM_CREATE:
 		
+		// Create buttons
 		// See
 		// http://www.cplusplus.com/forum/windows/11305/
 		// https://msdn.microsoft.com/en-us/library/windows/desktop/ms644898%28v=vs.85%29.aspx
+
+		hCreateProfileButton = CreateWindow(L"button", L"Create Profile",
+			WS_CHILD | WS_VISIBLE | BS_DEFPUSHBUTTON,
+			400, 100,
+			150, 20,
+			hWnd, (HMENU)BUTTON_CREATE_PROFILE_ID,
+			hInst, NULL);
+
+		oldCreateProfileButtonProc = (WNDPROC)SetWindowLongPtr(
+			hCreateProfileButton,
+			GWLP_WNDPROC,
+			(LONG_PTR)CreateProfileButtonProc);
+
 
 		hDealButton = CreateWindow(L"button", L"Deal",
 			WS_CHILD | WS_VISIBLE | BS_DEFPUSHBUTTON,
@@ -216,7 +234,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			hInst, NULL);
 
 		oldStandButtonProc = (WNDPROC)SetWindowLongPtr(
-										hHitButton,
+										hStandButton,
 										GWLP_WNDPROC,
 										(LONG_PTR)StandButtonProc);
 
@@ -260,6 +278,21 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 //
 // Handle button clicks
 //
+
+LRESULT CALLBACK CreateProfileButtonProc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp) {
+
+	if (msg == WM_LBUTTONDOWN) {
+
+		gameEngine->setState(GameEngine::STATE_CREATE_PROFILE);
+
+		RedrawWindow(gameEngine->getHWnd(), NULL, NULL,
+			RDW_INVALIDATE | RDW_UPDATENOW);
+
+		return 0;
+	}
+
+	return CallWindowProc(oldCreateProfileButtonProc, hwnd, msg, wp, lp);
+}
 
 LRESULT CALLBACK DealButtonProc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp)
 {
