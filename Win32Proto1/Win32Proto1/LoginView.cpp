@@ -1,4 +1,6 @@
 #include <windows.h>
+#include <tchar.h>
+
 #include "LoginView.h"
 #include "GameEngine.h"
 
@@ -142,6 +144,28 @@ LRESULT CALLBACK PerformLoginButtonProc(HWND hWnd, UINT msg, WPARAM wp, LPARAM l
 		//
 		// TODO authenticate user here...
 		//
+
+		//
+		// NOTE hard code user for now to test 
+		// for bad login, modal popup, etc.
+		//
+		TCHAR buff[64];
+		GetWindowText(hLoginViewUsernameTextbox, buff, 20);
+
+		if (_tcscmp(L"etauser", buff) != 0)
+		{
+			MessageBox(
+				GameEngine::getInstance()->getHWnd(),
+				L"Incorrect username or password.",
+				L"Login Failed",
+				NULL);
+
+			//
+			// Do not update game engine state. Return.
+			//
+			return 0;
+		}
+
 
 		GameEngine::getInstance()->setState(GameEngine::STATE_PLAYING);
 
