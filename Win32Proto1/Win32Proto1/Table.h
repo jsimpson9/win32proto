@@ -4,9 +4,10 @@
 #define TABLE_H
 
 #include <windows.h>
+#include "AbstractViewComponent.h"
 #include "Hand.h"
 
-class Table
+class Table : public AbstractViewComponent 
 {
 
 private:

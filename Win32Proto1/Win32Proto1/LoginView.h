@@ -1,15 +1,14 @@
 #pragma once
 
-#ifndef CREATEPROFILEVIEW_H
-#define CREATEPROFILEVIEW_H
+#ifndef LOGINVIEW_H
+#define LOGINVIEW_H
 
 #include <windows.h>
 #include "AbstractViewComponent.h"
 
-class CreateProfileView : public AbstractViewComponent
+class LoginView : public AbstractViewComponent
 {
 private:
-
 
 public:
 

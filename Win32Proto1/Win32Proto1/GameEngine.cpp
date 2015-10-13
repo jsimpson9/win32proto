@@ -1,6 +1,4 @@
 #include "GameEngine.h"
-#include "Table.h"
-#include "Card.h"
 #include <tchar.h>
 #include <string>
 
@@ -8,6 +6,10 @@
 #include "gdiplusgraphics.h"
 
 #include "WelcomeView.h"
+#include "CreateProfileView.h"
+#include "LoginView.h"
+#include "Table.h"
+
 
 using namespace Gdiplus;
 
@@ -27,20 +29,18 @@ GameEngine::GameEngine(HINSTANCE hInst, HWND hWnd)
 	_hInst	= hInst;
 	_hWnd	= hWnd;
 
-	//
-	// Create the "game table" which contains hands. 
-	//
-	_table = new Table();
 
 	//
-	// Create all of our UI views
+	// Create instances of all of our UI views
 	//
 	_welcomeView		= new WelcomeView();
 	_createProfileView	= new CreateProfileView();
+	_loginView			= new LoginView();
+	_table				= new Table();
 
 }
 
-Table* GameEngine::getTable() { return _table; }
+Table* GameEngine::getTable() { return (Table*)_table; }
 
 HWND GameEngine::getHWnd() { return _hWnd; }
 
@@ -82,6 +82,7 @@ void GameEngine::setState(int state) {
 void GameEngine::CreateAll(HWND hWnd, HINSTANCE hInst) {
 	_welcomeView->Create(hWnd, hInst);
 	_createProfileView->Create(hWnd, hInst);
+	_loginView->Create(hWnd, hInst);
 	_table->Create(hWnd, hInst);
 }
 
@@ -104,6 +105,9 @@ void GameEngine::Paint(HDC hdc) {
 	rect.bottom =	Table::TABLE_HEIGHT;
 
 	//
+	// TODO this FillRect might not even be necessary 
+	// given that the previoud view should now be hiding itself. 
+	//
 	// TODO create an abstract base class for all View
 	// objects, and move this FillRect into that.
 	//
@@ -116,7 +120,7 @@ void GameEngine::Paint(HDC hdc) {
 	// This should hide all child widgets which do not 
 	// get overwritten by the above FillRect().
 	//
-	// Then reveal one of them based
+	// Then later reveal one of them based
 	// on game engine state.
 	//
 	switch (_previousState) {
@@ -130,6 +134,10 @@ void GameEngine::Paint(HDC hdc) {
 			_createProfileView->Hide();
 			break;
 
+		case STATE_LOGIN:
+			_loginView->Hide();
+			break;
+
 		case STATE_PLAYING:
 
 			_table->Hide();
@@ -137,7 +145,7 @@ void GameEngine::Paint(HDC hdc) {
 	}
 
 	//
-	// Now draw stuff based on the game state
+	// Now draw a view based on the game state
 	//
 
 	switch (_gameState) {
@@ -151,6 +159,11 @@ void GameEngine::Paint(HDC hdc) {
 		case STATE_CREATE_PROFILE:
 
 			_createProfileView->Paint(hdc);
+			break;
+
+		case STATE_LOGIN:
+
+			_loginView->Paint(hdc);
 			break;
 
 		case STATE_PLAYING:

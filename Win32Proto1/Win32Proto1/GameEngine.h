@@ -7,6 +7,7 @@
 
 #include "Table.h"
 
+#include "AbstractViewComponent.h"
 #include "WelcomeView.h"
 #include "CreateProfileView.h"
 
@@ -34,9 +35,11 @@ private:
 	//
 	// All of our views. 
 	//
-	WelcomeView*			_welcomeView;
-	CreateProfileView*		_createProfileView;
-	Table*					_table;
+	AbstractViewComponent*			_welcomeView;
+	AbstractViewComponent*			_createProfileView;
+	AbstractViewComponent*			_loginView;
+	AbstractViewComponent*			_table;
+
 
 public:
 

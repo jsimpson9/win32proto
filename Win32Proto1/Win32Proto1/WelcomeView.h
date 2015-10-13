@@ -4,12 +4,11 @@
 #define WELCOMEVIEW_H
 
 #include <windows.h>
+#include "AbstractViewComponent.h"
 
-class WelcomeView
+class WelcomeView : public AbstractViewComponent
 {
 private:
-
-	boolean _isHidden = true;
 
 public:
 

@@ -46,7 +46,7 @@ void WelcomeView::Create(HWND hWnd, HINSTANCE hInst) {
 
 	hLoginButton = CreateWindow(L"button", L"Login",
 		WS_CHILD | BS_DEFPUSHBUTTON,
-		200, 120,
+		200, 125,
 		60, 20,
 		hWnd, (HMENU)BUTTON_LOGIN_ID,
 		hInst, NULL);
@@ -58,7 +58,7 @@ void WelcomeView::Create(HWND hWnd, HINSTANCE hInst) {
 
 	hCreateProfileButton = CreateWindow(L"button", L"Create Profile",
 		WS_CHILD | BS_DEFPUSHBUTTON,
-		270, 120,
+		270, 125,
 		130, 20,
 		hWnd, (HMENU)BUTTON_CREATE_PROFILE_ID,
 		hInst, NULL);

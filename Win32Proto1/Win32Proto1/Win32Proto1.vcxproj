@@ -23,15 +23,18 @@
     <ClCompile Include="CreateProfileView.cpp" />
     <ClCompile Include="GameEngine.cpp" />
     <ClCompile Include="Hand.cpp" />
+    <ClCompile Include="LoginView.cpp" />
     <ClCompile Include="Table.cpp" />
     <ClCompile Include="WelcomeView.cpp" />
     <ClCompile Include="Win32ProtoMainClass.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="AbstractViewComponent.h" />
     <ClInclude Include="Card.h" />
     <ClInclude Include="CreateProfileView.h" />
     <ClInclude Include="GameEngine.h" />
     <ClInclude Include="Hand.h" />
+    <ClInclude Include="LoginView.h" />
     <ClInclude Include="Table.h" />
     <ClInclude Include="WelcomeView.h" />
   </ItemGroup>
