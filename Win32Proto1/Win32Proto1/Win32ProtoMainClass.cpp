@@ -18,29 +18,13 @@ static TCHAR szWindowClass[] = _T("win32proto");
 static TCHAR szTitle[] = _T("Eta Blackjack");
 
 HINSTANCE	hInst;
-GameEngine*	gameEngine;
 ULONG_PTR	gdiplusToken;
-
-#define BUTTON_CREATE_PROFILE_ID		1001
-#define BUTTON_HIT_ID					1002
-#define BUTTON_STAND_ID					1003
-#define BUTTON_BET_ID					1004
-#define BUTTON_DEAL_ID					1005
 
 
 //
 // Function prototypes
 //
 LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
-LRESULT CALLBACK CreateProfileButtonProc(HWND, UINT, WPARAM, LPARAM);
-LRESULT CALLBACK DealButtonProc(HWND, UINT, WPARAM, LPARAM);
-LRESULT CALLBACK HitButtonProc(HWND, UINT, WPARAM, LPARAM);
-LRESULT CALLBACK StandButtonProc(HWND, UINT, WPARAM, LPARAM);
-
-WNDPROC oldCreateProfileButtonProc;
-WNDPROC oldDealButtonProc;
-WNDPROC oldHitButtonProc;
-WNDPROC oldStandButtonProc;
 
 
 //
@@ -63,6 +47,11 @@ int WINAPI WinMain(	HINSTANCE hInstance,
 	GdiplusStartupInput gdiplusStartupInput;
 	GdiplusStartup(&gdiplusToken, &gdiplusStartupInput, NULL);
 
+	//
+	// Initialize the GameEngine singleton. 
+	//
+	// GameEngine::init(hInst, hWnd);
+	GameEngine::init();
 
 	//
 	// The WNDCLASSEX structure holdinfo about the 
@@ -129,10 +118,6 @@ int WINAPI WinMain(	HINSTANCE hInstance,
 		return 1;
 	}
 
-	//
-	// Initialize the GameEngine
-	//
-	gameEngine = new GameEngine(hInst, hWnd);
 
 
 	// The parameters to ShowWindow explained:
@@ -169,10 +154,10 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
 	PAINTSTRUCT ps;
 	HDC hdc;
-	static HWND hCreateProfileButton;
-	static HWND hDealButton;
-	static HWND hHitButton;
-	static HWND hStandButton;
+
+	// static HWND hCreateProfileButton;
+
+
 
 	switch (message)
 	{
@@ -188,56 +173,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		// http://www.cplusplus.com/forum/windows/11305/
 		// https://msdn.microsoft.com/en-us/library/windows/desktop/ms644898%28v=vs.85%29.aspx
 
-		hCreateProfileButton = CreateWindow(L"button", L"Create Profile",
-			WS_CHILD | WS_VISIBLE | BS_DEFPUSHBUTTON,
-			400, 100,
-			150, 20,
-			hWnd, (HMENU)BUTTON_CREATE_PROFILE_ID,
-			hInst, NULL);
-
-		oldCreateProfileButtonProc = (WNDPROC)SetWindowLongPtr(
-			hCreateProfileButton,
-			GWLP_WNDPROC,
-			(LONG_PTR)CreateProfileButtonProc);
-
-
-		hDealButton = CreateWindow(L"button", L"Deal",
-			WS_CHILD | WS_VISIBLE | BS_DEFPUSHBUTTON,
-			500, 370,
-			50, 20,
-			hWnd, (HMENU)BUTTON_HIT_ID,
-			hInst, NULL);
+		GameEngine::getInstance()->CreateAll(hWnd, hInst);
 		
-		oldDealButtonProc = (WNDPROC)SetWindowLongPtr(
-										hDealButton, 
-										GWLP_WNDPROC, 
-										(LONG_PTR)DealButtonProc);
-		
-
-		hHitButton = CreateWindow(L"button", L"Hit",
-			WS_CHILD | WS_VISIBLE | BS_DEFPUSHBUTTON,
-			500, 400,
-			50, 20,
-			hWnd, (HMENU)BUTTON_HIT_ID,
-			hInst, NULL);
-
-		oldHitButtonProc = (WNDPROC)SetWindowLongPtr(
-										hHitButton,
-										GWLP_WNDPROC,
-										(LONG_PTR)HitButtonProc);
-
-		hStandButton = CreateWindow(L"button", L"Stand",
-			WS_CHILD | WS_VISIBLE | BS_DEFPUSHBUTTON,
-			500, 430,
-			50, 20,
-			hWnd, (HMENU)BUTTON_STAND_ID,
-			hInst, NULL);
-
-		oldStandButtonProc = (WNDPROC)SetWindowLongPtr(
-										hStandButton,
-										GWLP_WNDPROC,
-										(LONG_PTR)StandButtonProc);
-
 		break;
 
 	case WM_PAINT:
@@ -246,8 +183,9 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
 		//
 		// Do application-specific layout
-		//
-		gameEngine->Paint(hdc);
+		//		
+		GameEngine::getInstance()->setHWnd(hWnd);
+		GameEngine::getInstance()->Paint(hdc);
 
 
 		EndPaint(hWnd, &ps);
@@ -260,8 +198,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		//
 		GdiplusShutdown(gdiplusToken);
 		
-		
-		delete gameEngine;
+		delete GameEngine::getInstance();
 
 		PostQuitMessage(0);
 		break;
@@ -275,81 +212,4 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
 
 
-//
-// Handle button clicks
-//
 
-LRESULT CALLBACK CreateProfileButtonProc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp) {
-
-	if (msg == WM_LBUTTONDOWN) {
-
-		gameEngine->setState(GameEngine::STATE_CREATE_PROFILE);
-
-		RedrawWindow(gameEngine->getHWnd(), NULL, NULL,
-			RDW_INVALIDATE | RDW_UPDATENOW);
-
-		return 0;
-	}
-
-	return CallWindowProc(oldCreateProfileButtonProc, hwnd, msg, wp, lp);
-}
-
-LRESULT CALLBACK DealButtonProc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp)
-{
-
-	switch (msg) {
-
-		case WM_LBUTTONDOWN:
-
-			Table* table = gameEngine->getTable();
-			//
-			// TODO don't allow this if we are already in a game.
-			// TODO make this random
-			//
-			std::vector<Card*>* dealerCards = new std::vector<Card*>();
-			std::vector<Card*>* playerCards = new std::vector<Card*>();
-
-			dealerCards->push_back(new Card(Card::ACE, Card::SPADES, true));
-			dealerCards->push_back(new Card(Card::JACK, Card::SPADES));
-
-			playerCards->push_back(new Card(Card::TEN, Card::CLUBS));
-			playerCards->push_back(new Card(Card::JACK, Card::DIAMONDS));
-
-			Hand* dealerHand = new Hand(dealerCards);
-			Hand* playerHand = new Hand(playerCards);
-
-			table->setDealerHand(dealerHand);
-			table->setPlayerHand(playerHand);
-			
-			gameEngine->setState(GameEngine::STATE_PLAYING);
-
-			//
-			// Force redraw of window, which should now render the new
-			// card data. 
-			//
-			// https://msdn.microsoft.com/en-us/library/dd162911%28VS.85%29.aspx
-			// http://stackoverflow.com/questions/2325894/difference-between-invalidaterect-and-redrawwindow
-			//
-			RedrawWindow(gameEngine->getHWnd(), NULL, NULL, 
-							RDW_INVALIDATE | RDW_UPDATENOW);
-
-
-			return 0;
-
-	}
-
-	return CallWindowProc(oldDealButtonProc, hwnd, msg, wp, lp);
-}
-
-
-LRESULT CALLBACK HitButtonProc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp)
-{
-
-	return CallWindowProc(oldHitButtonProc, hwnd, msg, wp, lp);
-}
-
-LRESULT CALLBACK StandButtonProc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp)
-{
-
-	return CallWindowProc(oldStandButtonProc, hwnd, msg, wp, lp);
-}

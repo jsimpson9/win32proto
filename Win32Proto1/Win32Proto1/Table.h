@@ -21,7 +21,9 @@ public:
 
 	Table();
 
+	void Create(HWND hWnd, HINSTANCE hInst);
 	void Paint(HDC hdc);
+	void Hide();
 
 	Hand* getDealerHand();
 

@@ -1,39 +1,75 @@
 #pragma once
 
-#include <windows.h>
-#include "Table.h"
-
 #ifndef GAMEENGINE_H
 #define GAMEENGINE_H
+
+#include <windows.h>
+
+#include "Table.h"
+
+#include "WelcomeView.h"
+#include "CreateProfileView.h"
 
 class GameEngine
 {
 
 private:
 
-	// A handle to the application instance.
-	HINSTANCE _hInst;
-	HWND _hWnd;
-	Table* _table;
+	//
+	// Private constructor and static instance
+	// for singleton pattern.
+	//
+	GameEngine(HINSTANCE hInst, HWND hWnd);
+	static GameEngine* _gameEngine;
 
-	int _gameState;
+	//
+	// A handle to the application instance and handle to the window.
+	//
+	HINSTANCE	_hInst;
+	HWND		_hWnd;
+
+	int			_gameState;
+	int			_previousState;
+
+	//
+	// All of our views. 
+	//
+	WelcomeView*			_welcomeView;
+	CreateProfileView*		_createProfileView;
+	Table*					_table;
 
 public:
 
-	static constexpr int STATE_INITIAL			= 0;
-	static constexpr int STATE_CREATE_PROFILE	= 1;
-	static constexpr int STATE_PLAYING			= 2;
-	static constexpr int STATE_FINISHED			= 3;
 
-	GameEngine(HINSTANCE hInst, HWND hWnd);
 
-	void Paint(HDC hdc);
+	//
+	// Constants representing game state
+	//
+	static constexpr int STATE_INITIAL			= 1;
+	static constexpr int STATE_CREATE_PROFILE	= 2;
+	static constexpr int STATE_LOGIN			= 3;
+	static constexpr int STATE_PLAYING			= 4;
+	static constexpr int STATE_FINISHED			= 5;
 
-	HWND getHWnd(); 
+	void		Paint(HDC hdc);
+	void		CreateAll(HWND hWnd, HINSTANCE hInst);
 
-	Table* getTable();
+	HWND		getHWnd(); 
+	void		setHWnd(HWND hWnd);
 
-	void setState(int state);
+	// HINSTANCE	getHInst();
+	
+	Table*		getTable();
+
+	void		setState(int state);
+
+	static void			init(HINSTANCE hInst, HWND hWnd);
+	static void			init();
+
+	static GameEngine*	getInstance();
+	static void			setInstance(GameEngine* gameEngine);
+
 };
+
 
 #endif
