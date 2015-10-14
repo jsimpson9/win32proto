@@ -81,7 +81,7 @@ void WelcomeView::Paint(HDC hdc) {
 	//
 	// Play welcome sound?
 	//
-	PlaySound(L"sound-ding.wav", NULL, SND_FILENAME | SND_ASYNC);
+	// PlaySound(L"sound-ding.wav", NULL, SND_FILENAME | SND_ASYNC);
 
 	ShowWindow(hStaticTitleMsg, SW_SHOW);
 	ShowWindow(hStaticWelcomeMsg, SW_SHOW);
