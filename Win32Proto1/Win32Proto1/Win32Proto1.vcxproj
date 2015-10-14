@@ -39,10 +39,16 @@
     <ClInclude Include="WelcomeView.h" />
   </ItemGroup>
   <ItemGroup>
-    <Image Include="club-icon.png" />
-    <Image Include="diamond-icon.png" />
-    <Image Include="heart-icon.png" />
-    <Image Include="spade-icon.png" />
+    <Image Include="image-club-icon.png" />
+    <Image Include="image-diamond-icon.png" />
+    <Image Include="image-heart-icon.png" />
+    <Image Include="image-spade-icon.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Media Include="sound-chips.wav" />
+    <Media Include="sound-ding.wav" />
+    <Media Include="sound-flipcard.wav" />
+    <Media Include="sound-yay.wav" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{86424E1C-0A2C-4D7C-9A49-23433244AEB3}</ProjectGuid>
@@ -134,7 +140,7 @@
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;gdiplus.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;gdiplus.lib;winmm.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">

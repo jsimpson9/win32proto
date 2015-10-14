@@ -125,6 +125,8 @@ LRESULT CALLBACK DealButtonProc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp)
 
 		GameEngine::getInstance()->setState(GameEngine::STATE_PLAYING);
 
+		PlaySound(L"sound-chips.wav", NULL, SND_FILENAME | SND_ASYNC);
+
 		//
 		// Force redraw of window, which should now render the new
 		// card data. 
@@ -146,6 +148,11 @@ LRESULT CALLBACK DealButtonProc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp)
 
 LRESULT CALLBACK HitButtonProc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp)
 {
+	if (msg == WM_LBUTTONDOWN) {
+
+		PlaySound(L"sound-flipcard.wav", NULL, SND_FILENAME | SND_ASYNC);
+
+	}
 
 	return CallWindowProc(oldHitButtonProc, hwnd, msg, wp, lp);
 }

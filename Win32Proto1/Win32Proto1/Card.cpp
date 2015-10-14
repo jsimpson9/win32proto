@@ -113,10 +113,10 @@ void Card::Paint(HDC hdc, int x, int y) {
 
 	Graphics graphics(hdc);
 
-	Image imageClub(	L"club-icon.png"	);
-	Image imageDiamond(	L"diamond-icon.png"	);
-	Image imageHeart(	L"heart-icon.png"	);
-	Image imageSpade(	L"spade-icon.png"	);
+	Image imageClub(	L"image-club-icon.png"	);
+	Image imageDiamond(	L"image-diamond-icon.png"	);
+	Image imageHeart(	L"image-heart-icon.png"	);
+	Image imageSpade(	L"image-spade-icon.png"	);
 
 	// Pen pen(Color(255, 255, 0, 0), 2);
 
