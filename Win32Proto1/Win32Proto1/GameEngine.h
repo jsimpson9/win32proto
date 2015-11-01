@@ -39,6 +39,7 @@ private:
 	AbstractViewComponent*			_createProfileView;
 	AbstractViewComponent*			_loginView;
 	AbstractViewComponent*			_table;
+	AbstractViewComponent*			_bankingView;
 
 
 public:
@@ -53,6 +54,7 @@ public:
 	static constexpr int STATE_LOGIN			= 3;
 	static constexpr int STATE_PLAYING			= 4;
 	static constexpr int STATE_FINISHED			= 5;
+	static constexpr int STATE_BANKING			= 6;
 
 	void		Paint(HDC hdc);
 	void		CreateAll(HWND hWnd, HINSTANCE hInst);

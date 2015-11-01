@@ -9,6 +9,7 @@
 #include "CreateProfileView.h"
 #include "LoginView.h"
 #include "Table.h"
+#include "BankingView.h"
 
 
 using namespace Gdiplus;
@@ -37,6 +38,7 @@ GameEngine::GameEngine(HINSTANCE hInst, HWND hWnd)
 	_createProfileView	= new CreateProfileView();
 	_loginView			= new LoginView();
 	_table				= new Table();
+	_bankingView		= new BankingView();
 
 }
 
@@ -80,10 +82,13 @@ void GameEngine::setState(int state) {
 }
 
 void GameEngine::CreateAll(HWND hWnd, HINSTANCE hInst) {
+
 	_welcomeView->Create(hWnd, hInst);
 	_createProfileView->Create(hWnd, hInst);
 	_loginView->Create(hWnd, hInst);
 	_table->Create(hWnd, hInst);
+	_bankingView->Create(hWnd, hInst);
+
 }
 
 
@@ -142,6 +147,11 @@ void GameEngine::Paint(HDC hdc) {
 
 			_table->Hide();
 			break;
+
+		case STATE_BANKING:
+
+			_bankingView->Hide();
+			break;
 	}
 
 	//
@@ -171,6 +181,13 @@ void GameEngine::Paint(HDC hdc) {
 			// render card playing table
 			//
 			_table->Paint(hdc);
+			break;
+
+		case STATE_BANKING:
+			//
+			// render bank view
+			//
+			_bankingView->Paint(hdc);
 			break;
 	}
 

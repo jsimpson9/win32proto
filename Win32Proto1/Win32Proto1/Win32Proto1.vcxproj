@@ -19,6 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="BankingView.cpp" />
     <ClCompile Include="Card.cpp" />
     <ClCompile Include="CreateProfileView.cpp" />
     <ClCompile Include="GameEngine.cpp" />
@@ -30,6 +31,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AbstractViewComponent.h" />
+    <ClInclude Include="BankingView.h" />
     <ClInclude Include="Card.h" />
     <ClInclude Include="CreateProfileView.h" />
     <ClInclude Include="GameEngine.h" />

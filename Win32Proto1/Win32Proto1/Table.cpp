@@ -7,15 +7,20 @@
 #define BUTTON_STAND_ID					3002
 #define BUTTON_BET_ID					3003
 #define BUTTON_DEAL_ID					3004
+#define BUTTON_BANK_ID					3005
+
+LRESULT CALLBACK BankButtonProc(HWND, UINT, WPARAM, LPARAM);
 
 LRESULT CALLBACK DealButtonProc(HWND, UINT, WPARAM, LPARAM);
 LRESULT CALLBACK HitButtonProc(HWND, UINT, WPARAM, LPARAM);
 LRESULT CALLBACK StandButtonProc(HWND, UINT, WPARAM, LPARAM);
 
+WNDPROC oldBankButtonProc;
 WNDPROC oldDealButtonProc;
 WNDPROC oldHitButtonProc;
 WNDPROC oldStandButtonProc;
 
+static HWND hBankButton;
 static HWND hDealButton;
 static HWND hHitButton;
 static HWND hStandButton;
@@ -28,10 +33,22 @@ Table::Table() {
 
 void Table::Create(HWND hWnd, HINSTANCE hInst) { 
 
+	hBankButton = CreateWindow(L"button", L"Bank",
+		WS_CHILD | BS_DEFPUSHBUTTON,
+		500, 50,
+		60, 20,
+		hWnd, (HMENU)BUTTON_BANK_ID,
+		hInst, NULL);
+
+	oldBankButtonProc = (WNDPROC)SetWindowLongPtr(
+		hBankButton,
+		GWLP_WNDPROC,
+		(LONG_PTR)BankButtonProc);
+
 	hDealButton = CreateWindow(L"button", L"Deal",
 		WS_CHILD | BS_DEFPUSHBUTTON,
 		500, 370,
-		50, 20,
+		60, 20,
 		hWnd, (HMENU)BUTTON_HIT_ID,
 		hInst, NULL);
 
@@ -44,7 +61,7 @@ void Table::Create(HWND hWnd, HINSTANCE hInst) {
 	hHitButton = CreateWindow(L"button", L"Hit",
 		WS_CHILD | BS_DEFPUSHBUTTON,
 		500, 400,
-		50, 20,
+		60, 20,
 		hWnd, (HMENU)BUTTON_HIT_ID,
 		hInst, NULL);
 
@@ -56,7 +73,7 @@ void Table::Create(HWND hWnd, HINSTANCE hInst) {
 	hStandButton = CreateWindow(L"button", L"Stand",
 		WS_CHILD | BS_DEFPUSHBUTTON,
 		500, 430,
-		50, 20,
+		60, 20,
 		hWnd, (HMENU)BUTTON_STAND_ID,
 		hInst, NULL);
 
@@ -76,12 +93,15 @@ void Table::Paint(HDC hdc) {
 		_playerHand->Paint(hdc, 10, 300);
 	}
 
+	ShowWindow(hBankButton, SW_SHOW);
 	ShowWindow(hDealButton, SW_SHOW);
 	ShowWindow(hHitButton, SW_SHOW);
 	ShowWindow(hStandButton, SW_SHOW);
 }
 
 void Table::Hide() { 
+
+	ShowWindow(hBankButton, SW_HIDE);
 	ShowWindow(hDealButton, SW_HIDE);
 	ShowWindow(hHitButton, SW_HIDE);
 	ShowWindow(hStandButton, SW_HIDE);
@@ -161,5 +181,19 @@ LRESULT CALLBACK StandButtonProc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp)
 {
 
 	return CallWindowProc(oldStandButtonProc, hwnd, msg, wp, lp);
+}
+
+LRESULT CALLBACK BankButtonProc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp)
+{
+	if (msg == WM_LBUTTONDOWN) {
+
+		GameEngine::getInstance()->setState(GameEngine::STATE_BANKING);
+
+		RedrawWindow(GameEngine::getInstance()->getHWnd(), NULL, NULL,
+			RDW_INVALIDATE | RDW_UPDATENOW);
+
+	}
+
+	return CallWindowProc(oldBankButtonProc, hwnd, msg, wp, lp);
 }
 
