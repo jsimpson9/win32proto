@@ -20,18 +20,33 @@ WNDPROC oldDealButtonProc;
 WNDPROC oldHitButtonProc;
 WNDPROC oldStandButtonProc;
 
+static HWND hTextboxBetAmount = NULL;
+static HWND hStaticBetAmount = NULL;
+
 static HWND hBankButton;
 static HWND hDealButton;
 static HWND hHitButton;
 static HWND hStandButton;
 
+static constexpr int TABLE_STATE_READY		= 0;
+static constexpr int TABLE_STATE_PLAYING	= 1;
+static constexpr int TABLE_STATE_STANDING	= 2;
+static constexpr int TABLE_STATE_DEALER		= 3;
+
+
 Table::Table() {
 	_dealerHand = new Hand(new std::vector<Card*>());
 	_playerHand = new Hand(new std::vector<Card*>());
+	
+	_tableState = TABLE_STATE_READY;
 }
 
+void Table::setState(int state) { _tableState = state; }
+
+int Table::getState() { return _tableState; }
 
 void Table::Create(HWND hWnd, HINSTANCE hInst) { 
+
 
 	hBankButton = CreateWindow(L"button", L"Bank",
 		WS_CHILD | BS_DEFPUSHBUTTON,
@@ -44,6 +59,14 @@ void Table::Create(HWND hWnd, HINSTANCE hInst) {
 		hBankButton,
 		GWLP_WNDPROC,
 		(LONG_PTR)BankButtonProc);
+
+	hStaticBetAmount = CreateWindow(L"static", L"Bet:", WS_CHILD,
+		455, 340, 40, 28,
+		hWnd, NULL, NULL, NULL);
+
+	hTextboxBetAmount = CreateWindowEx(WS_EX_CLIENTEDGE, L"edit", L"", WS_CHILD | WS_BORDER,
+		500, 340, 60, 30,
+		hWnd, NULL, NULL, NULL);
 
 	hDealButton = CreateWindow(L"button", L"Deal",
 		WS_CHILD | BS_DEFPUSHBUTTON,
@@ -94,14 +117,44 @@ void Table::Paint(HDC hdc) {
 	}
 
 	ShowWindow(hBankButton, SW_SHOW);
+
+	ShowWindow(hStaticBetAmount, SW_SHOW);
+	ShowWindow(hTextboxBetAmount, SW_SHOW);
+
 	ShowWindow(hDealButton, SW_SHOW);
 	ShowWindow(hHitButton, SW_SHOW);
 	ShowWindow(hStandButton, SW_SHOW);
+
+	//
+	// Enable / disable buttons based on table state.
+	//
+	if (_tableState == TABLE_STATE_READY) {
+
+		EnableWindow(hBankButton, true);
+		EnableWindow(hDealButton, true);
+		EnableWindow(hTextboxBetAmount, true);
+
+		EnableWindow(hHitButton, false);
+		EnableWindow(hStandButton, false);
+
+	}
+	else if (_tableState == TABLE_STATE_PLAYING) {
+		EnableWindow(hBankButton, false);
+		EnableWindow(hDealButton, false);
+		EnableWindow(hTextboxBetAmount, false);
+
+		EnableWindow(hHitButton, true);
+		EnableWindow(hStandButton, true);
+	}
 }
 
 void Table::Hide() { 
 
 	ShowWindow(hBankButton, SW_HIDE);
+
+	ShowWindow(hStaticBetAmount, SW_HIDE);
+	ShowWindow(hTextboxBetAmount, SW_HIDE);
+
 	ShowWindow(hDealButton, SW_HIDE);
 	ShowWindow(hHitButton, SW_HIDE);
 	ShowWindow(hStandButton, SW_HIDE);
@@ -146,6 +199,8 @@ LRESULT CALLBACK DealButtonProc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp)
 		GameEngine::getInstance()->setState(GameEngine::STATE_PLAYING);
 
 		PlaySound(L"sound-chips.wav", NULL, SND_FILENAME | SND_ASYNC);
+
+		table->setState(TABLE_STATE_PLAYING);
 
 		//
 		// Force redraw of window, which should now render the new

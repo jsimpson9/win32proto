@@ -15,6 +15,8 @@ private:
 	Hand* _dealerHand;
 	Hand* _playerHand;
 
+	int _tableState;
+
 public:
 	
 	static constexpr int TABLE_WIDTH	= 600;
@@ -34,6 +36,9 @@ public:
 
 	void setPlayerHand(Hand* hand);
 
+	void setState(int state);
+
+	int getState(); 
 };
 
 #endif
