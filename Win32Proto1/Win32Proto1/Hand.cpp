@@ -6,6 +6,19 @@ Hand::Hand(std::vector<Card*>* cards) {
 	_cards = cards;
 }
 
+Hand::Hand() {
+	_cards = new std::vector<Card*>();
+}
+
+Hand::~Hand() {
+	// Do I need to delete each card on this vector?
+	// Or is the vector "smart" enough to call 
+	// delete on each element?????? I <3 C++
+	delete _cards;
+}
+
+
+
 //
 // Get the value of the hand. This returns a vector because
 // a hand can have multiple values when aces are present in the hand. 
@@ -85,5 +98,12 @@ void Hand::Paint(HDC hdc, int x, int y) {
 		yOffset += 20;
 	}
 
+}
+
+void Hand::dealCard(bool isFacedown) {
+	int suit = (rand() % 4)  + 1;
+	int face = (rand() % 13) + 1;
+	Card* card = new Card(face, suit, isFacedown);
+	_cards->push_back(card);
 }
 

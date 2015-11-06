@@ -17,6 +17,9 @@ public:
 
 	Hand(std::vector<Card*>* cards);
 
+	Hand();
+	~Hand();
+
 	void Paint(HDC hdc, int x, int y);
 
 	std::vector<int>* GetValues();
@@ -27,6 +30,7 @@ public:
 
 	bool isBlackjack();
 
+	void dealCard(bool isFacedown);
 };
 
 #endif

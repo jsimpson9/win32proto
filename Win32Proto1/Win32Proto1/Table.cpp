@@ -177,21 +177,15 @@ LRESULT CALLBACK DealButtonProc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp)
 	case WM_LBUTTONDOWN:
 
 		Table* table = GameEngine::getInstance()->getTable();
-		//
-		// TODO don't allow this if we are already in a game.
-		// TODO make this random
-		//
-		std::vector<Card*>* dealerCards = new std::vector<Card*>();
-		std::vector<Card*>* playerCards = new std::vector<Card*>();
 
-		dealerCards->push_back(new Card(Card::ACE, Card::SPADES, true));
-		dealerCards->push_back(new Card(Card::JACK, Card::SPADES));
+		Hand* dealerHand = new Hand();
+		Hand* playerHand = new Hand();
 
-		playerCards->push_back(new Card(Card::TEN, Card::CLUBS));
-		playerCards->push_back(new Card(Card::JACK, Card::DIAMONDS));
+		dealerHand->dealCard(true);
+		dealerHand->dealCard(false);
 
-		Hand* dealerHand = new Hand(dealerCards);
-		Hand* playerHand = new Hand(playerCards);
+		playerHand->dealCard(false);
+		playerHand->dealCard(false);
 
 		table->setDealerHand(dealerHand);
 		table->setPlayerHand(playerHand);

@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <tchar.h>
+#include <ctime>
 
 #include "Table.h"
 #include "Hand.h"
@@ -46,6 +47,11 @@ int WINAPI WinMain(	HINSTANCE hInstance,
 	//
 	GdiplusStartupInput gdiplusStartupInput;
 	GdiplusStartup(&gdiplusToken, &gdiplusStartupInput, NULL);
+
+	//
+	// Init random number generator
+	//
+	srand(time(NULL));
 
 	//
 	// Initialize the GameEngine singleton. 
