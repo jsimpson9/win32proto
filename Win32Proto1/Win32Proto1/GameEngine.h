@@ -55,6 +55,7 @@ public:
 	static constexpr int STATE_PLAYING			= 4;
 	static constexpr int STATE_FINISHED			= 5;
 	static constexpr int STATE_BANKING			= 6;
+	static constexpr int STATE_VIEW_PROFILE		= 7;
 
 	void		Paint(HDC hdc);
 	void		CreateAll(HWND hWnd, HINSTANCE hInst);

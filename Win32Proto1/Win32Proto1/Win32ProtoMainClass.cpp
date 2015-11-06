@@ -51,7 +51,7 @@ int WINAPI WinMain(	HINSTANCE hInstance,
 	//
 	// Init random number generator
 	//
-	srand(time(NULL));
+	srand((unsigned int)time(NULL));
 
 	//
 	// Initialize the GameEngine singleton. 

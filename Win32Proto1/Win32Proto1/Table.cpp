@@ -2,28 +2,38 @@
 #include "Table.h"
 #include "GameEngine.h"
 #include "Hand.h"
+#include "User.h"
 
 #define BUTTON_HIT_ID					3001
 #define BUTTON_STAND_ID					3002
 #define BUTTON_BET_ID					3003
 #define BUTTON_DEAL_ID					3004
 #define BUTTON_BANK_ID					3005
+#define BUTTON_PROFILE_ID				3006
+
 
 LRESULT CALLBACK BankButtonProc(HWND, UINT, WPARAM, LPARAM);
+LRESULT CALLBACK ProfileButtonProc(HWND, UINT, WPARAM, LPARAM);
 
 LRESULT CALLBACK DealButtonProc(HWND, UINT, WPARAM, LPARAM);
 LRESULT CALLBACK HitButtonProc(HWND, UINT, WPARAM, LPARAM);
 LRESULT CALLBACK StandButtonProc(HWND, UINT, WPARAM, LPARAM);
 
 WNDPROC oldBankButtonProc;
+WNDPROC oldProfileButtonProc;
 WNDPROC oldDealButtonProc;
 WNDPROC oldHitButtonProc;
 WNDPROC oldStandButtonProc;
 
-static HWND hTextboxBetAmount = NULL;
-static HWND hStaticBetAmount = NULL;
+static HWND hTextboxBetAmount	= NULL;
+static HWND hStaticBetAmount	= NULL;
+
+static HWND hStaticTableUsername		= NULL;
+static HWND hStaticTableUserBalance		= NULL;
+
 
 static HWND hBankButton;
+static HWND hProfileButton;
 static HWND hDealButton;
 static HWND hHitButton;
 static HWND hStandButton;
@@ -47,10 +57,12 @@ int Table::getState() { return _tableState; }
 
 void Table::Create(HWND hWnd, HINSTANCE hInst) { 
 
-
+	//
+	// Bank button and bank callback func
+	//
 	hBankButton = CreateWindow(L"button", L"Bank",
 		WS_CHILD | BS_DEFPUSHBUTTON,
-		500, 50,
+		500, 100,
 		60, 20,
 		hWnd, (HMENU)BUTTON_BANK_ID,
 		hInst, NULL);
@@ -60,10 +72,31 @@ void Table::Create(HWND hWnd, HINSTANCE hInst) {
 		GWLP_WNDPROC,
 		(LONG_PTR)BankButtonProc);
 
+	//
+	// View profile button and callback function
+	//
+	hProfileButton = CreateWindow(L"button", L"Profile",
+		WS_CHILD | BS_DEFPUSHBUTTON,
+		500, 130,
+		60, 20,
+		hWnd, (HMENU)BUTTON_PROFILE_ID,
+		hInst, NULL);
+
+	oldProfileButtonProc = (WNDPROC)SetWindowLongPtr(
+		hProfileButton,
+		GWLP_WNDPROC,
+		(LONG_PTR)ProfileButtonProc);
+
+	//
+	// Static text "Bet:"
+	//
 	hStaticBetAmount = CreateWindow(L"static", L"Bet:", WS_CHILD,
 		455, 340, 40, 28,
 		hWnd, NULL, NULL, NULL);
 
+	//
+	// Textbox for bet amount
+	//
 	hTextboxBetAmount = CreateWindowEx(WS_EX_CLIENTEDGE, L"edit", L"", WS_CHILD | WS_BORDER,
 		500, 340, 60, 30,
 		hWnd, NULL, NULL, NULL);
@@ -117,6 +150,7 @@ void Table::Paint(HDC hdc) {
 	}
 
 	ShowWindow(hBankButton, SW_SHOW);
+	ShowWindow(hProfileButton, SW_SHOW);
 
 	ShowWindow(hStaticBetAmount, SW_SHOW);
 	ShowWindow(hTextboxBetAmount, SW_SHOW);
@@ -131,6 +165,7 @@ void Table::Paint(HDC hdc) {
 	if (_tableState == TABLE_STATE_READY) {
 
 		EnableWindow(hBankButton, true);
+		EnableWindow(hProfileButton, true);
 		EnableWindow(hDealButton, true);
 		EnableWindow(hTextboxBetAmount, true);
 
@@ -140,6 +175,7 @@ void Table::Paint(HDC hdc) {
 	}
 	else if (_tableState == TABLE_STATE_PLAYING) {
 		EnableWindow(hBankButton, false);
+		EnableWindow(hProfileButton, false);
 		EnableWindow(hDealButton, false);
 		EnableWindow(hTextboxBetAmount, false);
 
@@ -151,6 +187,7 @@ void Table::Paint(HDC hdc) {
 void Table::Hide() { 
 
 	ShowWindow(hBankButton, SW_HIDE);
+	ShowWindow(hProfileButton, SW_HIDE);
 
 	ShowWindow(hStaticBetAmount, SW_HIDE);
 	ShowWindow(hTextboxBetAmount, SW_HIDE);
@@ -246,3 +283,16 @@ LRESULT CALLBACK BankButtonProc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp)
 	return CallWindowProc(oldBankButtonProc, hwnd, msg, wp, lp);
 }
 
+LRESULT CALLBACK ProfileButtonProc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp)
+{
+	if (msg == WM_LBUTTONDOWN) {
+
+		GameEngine::getInstance()->setState(GameEngine::STATE_VIEW_PROFILE);
+
+		RedrawWindow(GameEngine::getInstance()->getHWnd(), NULL, NULL,
+			RDW_INVALIDATE | RDW_UPDATENOW);
+
+	}
+
+	return CallWindowProc(oldBankButtonProc, hwnd, msg, wp, lp);
+}

@@ -38,6 +38,7 @@
     <ClInclude Include="Hand.h" />
     <ClInclude Include="LoginView.h" />
     <ClInclude Include="Table.h" />
+    <ClInclude Include="User.h" />
     <ClInclude Include="WelcomeView.h" />
   </ItemGroup>
   <ItemGroup>
