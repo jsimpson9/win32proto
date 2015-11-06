@@ -58,6 +58,22 @@ int Table::getState() { return _tableState; }
 void Table::Create(HWND hWnd, HINSTANCE hInst) { 
 
 	//
+	// Static text Username
+	//
+	hStaticTableUsername = CreateWindow(L"static", L"User: ", WS_CHILD,
+		500, 40, 
+		60, 20,
+		hWnd, NULL, NULL, NULL);
+
+	//
+	// Static text Username
+	//
+	hStaticTableUserBalance = CreateWindow(L"static", L"Balance: ", WS_CHILD,
+		500, 70,
+		60, 20,
+		hWnd, NULL, NULL, NULL);
+
+	//
 	// Bank button and bank callback func
 	//
 	hBankButton = CreateWindow(L"button", L"Bank",
@@ -149,6 +165,22 @@ void Table::Paint(HDC hdc) {
 		_playerHand->Paint(hdc, 10, 300);
 	}
 
+	GameEngine* gameEngine = GameEngine::getInstance();
+	User* user = gameEngine->getUser();
+
+	std::string sUsername = user->getUsername();
+	std::wstring wUsername = std::wstring(sUsername.begin(), sUsername.end());
+	LPCWSTR lpcwUsername = wUsername.c_str();
+
+	//
+	// Set table username and user balance
+	//
+	SetWindowText(hStaticTableUsername, lpcwUsername);
+	SetWindowText(hStaticTableUserBalance, L"test");
+
+	ShowWindow(hStaticTableUsername, SW_SHOW);
+	ShowWindow(hStaticTableUserBalance, SW_SHOW);
+
 	ShowWindow(hBankButton, SW_SHOW);
 	ShowWindow(hProfileButton, SW_SHOW);
 
@@ -185,6 +217,9 @@ void Table::Paint(HDC hdc) {
 }
 
 void Table::Hide() { 
+
+	ShowWindow(hStaticTableUsername, SW_HIDE);
+	ShowWindow(hStaticTableUserBalance, SW_HIDE);
 
 	ShowWindow(hBankButton, SW_HIDE);
 	ShowWindow(hProfileButton, SW_HIDE);
