@@ -10,6 +10,7 @@
 #include "LoginView.h"
 #include "Table.h"
 #include "BankingView.h"
+#include "User.h"
 
 
 using namespace Gdiplus;
@@ -193,6 +194,11 @@ void GameEngine::Paint(HDC hdc) {
 
 
 }
+
+
+User*	GameEngine::getUser()			{ return _user; }
+void	GameEngine::setUser(User* user)	{ _user = user; }
+
 
 
 

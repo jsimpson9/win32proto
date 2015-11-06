@@ -3,6 +3,7 @@
 
 #include "LoginView.h"
 #include "GameEngine.h"
+#include "User.h"
 
 #define BUTTON_PERFORM_LOGIN_ID					4001
 #define BUTTON_CANCEL_LOGIN_ID					4002
@@ -166,8 +167,12 @@ LRESULT CALLBACK PerformLoginButtonProc(HWND hWnd, UINT msg, WPARAM wp, LPARAM l
 			return 0;
 		}
 
+		GameEngine* gameEngine = GameEngine::getInstance();
 
-		GameEngine::getInstance()->setState(GameEngine::STATE_PLAYING);
+		User* user = new User("etauser", "123", 0, 0, 100, NULL);
+		
+		gameEngine->setUser(user);
+		gameEngine->setState(GameEngine::STATE_PLAYING);
 
 		RedrawWindow(GameEngine::getInstance()->getHWnd(), NULL, NULL,
 			RDW_INVALIDATE | RDW_UPDATENOW);

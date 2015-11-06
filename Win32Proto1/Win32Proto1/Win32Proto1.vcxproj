@@ -26,6 +26,7 @@
     <ClCompile Include="Hand.cpp" />
     <ClCompile Include="LoginView.cpp" />
     <ClCompile Include="Table.cpp" />
+    <ClCompile Include="User.cpp" />
     <ClCompile Include="WelcomeView.cpp" />
     <ClCompile Include="Win32ProtoMainClass.cpp" />
   </ItemGroup>

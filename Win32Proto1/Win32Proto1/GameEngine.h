@@ -10,6 +10,7 @@
 #include "AbstractViewComponent.h"
 #include "WelcomeView.h"
 #include "CreateProfileView.h"
+#include "User.h"
 
 class GameEngine
 {
@@ -41,6 +42,11 @@ private:
 	AbstractViewComponent*			_table;
 	AbstractViewComponent*			_bankingView;
 
+	//
+	// The current logged in user, or null if no session
+	// is currently available
+	//
+	User* _user;
 
 public:
 
@@ -68,6 +74,9 @@ public:
 	Table*		getTable();
 
 	void		setState(int state);
+
+	User*		getUser();
+	void		setUser(User* user);
 
 	static void			init(HINSTANCE hInst, HWND hWnd);
 	static void			init();
