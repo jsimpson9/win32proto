@@ -117,6 +117,11 @@ void Table::Create(HWND hWnd, HINSTANCE hInst) {
 		500, 340, 60, 30,
 		hWnd, NULL, NULL, NULL);
 
+	//
+	// Set default bet value
+	//
+	SetWindowText(hTextboxBetAmount, L"10");
+
 	hDealButton = CreateWindow(L"button", L"Deal",
 		WS_CHILD | BS_DEFPUSHBUTTON,
 		500, 370,
