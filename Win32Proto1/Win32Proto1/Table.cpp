@@ -10,10 +10,12 @@
 #define BUTTON_DEAL_ID					3004
 #define BUTTON_BANK_ID					3005
 #define BUTTON_PROFILE_ID				3006
+#define BUTTON_LOGOUT_ID				3007
 
 
 LRESULT CALLBACK BankButtonProc(HWND, UINT, WPARAM, LPARAM);
 LRESULT CALLBACK ProfileButtonProc(HWND, UINT, WPARAM, LPARAM);
+LRESULT CALLBACK LogoutButtonProc(HWND, UINT, WPARAM, LPARAM);
 
 LRESULT CALLBACK DealButtonProc(HWND, UINT, WPARAM, LPARAM);
 LRESULT CALLBACK HitButtonProc(HWND, UINT, WPARAM, LPARAM);
@@ -21,6 +23,8 @@ LRESULT CALLBACK StandButtonProc(HWND, UINT, WPARAM, LPARAM);
 
 WNDPROC oldBankButtonProc;
 WNDPROC oldProfileButtonProc;
+WNDPROC oldLogoutButtonProc;
+
 WNDPROC oldDealButtonProc;
 WNDPROC oldHitButtonProc;
 WNDPROC oldStandButtonProc;
@@ -34,6 +38,7 @@ static HWND hStaticTableUserBalance		= NULL;
 
 static HWND hBankButton;
 static HWND hProfileButton;
+static HWND hLogoutButton;
 static HWND hDealButton;
 static HWND hHitButton;
 static HWND hStandButton;
@@ -45,6 +50,7 @@ static constexpr int TABLE_STATE_DEALER		= 3;
 
 
 Table::Table() {
+
 	_dealerHand = new Hand(new std::vector<Card*>());
 	_playerHand = new Hand(new std::vector<Card*>());
 	
@@ -61,16 +67,16 @@ void Table::Create(HWND hWnd, HINSTANCE hInst) {
 	// Static text Username
 	//
 	hStaticTableUsername = CreateWindow(L"static", L"User: ", WS_CHILD,
-		500, 40, 
-		60, 20,
+		400, 40, 
+		160, 20,
 		hWnd, NULL, NULL, NULL);
 
 	//
-	// Static text Username
+	// Static text user balance
 	//
 	hStaticTableUserBalance = CreateWindow(L"static", L"Balance: ", WS_CHILD,
-		500, 70,
-		60, 20,
+		400, 70,
+		160, 20,
 		hWnd, NULL, NULL, NULL);
 
 	//
@@ -102,6 +108,21 @@ void Table::Create(HWND hWnd, HINSTANCE hInst) {
 		hProfileButton,
 		GWLP_WNDPROC,
 		(LONG_PTR)ProfileButtonProc);
+
+	//
+	// Logout button
+	//
+	hLogoutButton = CreateWindow(L"button", L"Logout",
+		WS_CHILD | BS_DEFPUSHBUTTON,
+		500, 160,
+		60, 20,
+		hWnd, (HMENU)BUTTON_LOGOUT_ID,
+		hInst, NULL);
+
+	oldLogoutButtonProc = (WNDPROC)SetWindowLongPtr(
+		hLogoutButton,
+		GWLP_WNDPROC,
+		(LONG_PTR)LogoutButtonProc);
 
 	//
 	// Static text "Bet:"
@@ -174,20 +195,45 @@ void Table::Paint(HDC hdc) {
 	User* user = gameEngine->getUser();
 
 	std::string sUsername = user->getUsername();
-	std::wstring wUsername = std::wstring(sUsername.begin(), sUsername.end());
-	LPCWSTR lpcwUsername = wUsername.c_str();
+
+	// std::wstring wUsername = std::wstring(sUsername.begin(), sUsername.end());
+	// LPCWSTR lpcwUsername = wUsername.c_str();
+
+	//
+	// 20 lines of code just to format some text.
+	// Thanks C++ !!!
+	//
+
+	size_t convertedChars = 0;
+
+	char usernameText[30];
+	snprintf(usernameText, 30, "User: %s", sUsername.c_str());
+	wchar_t usernameWtext[30];
+	mbstowcs_s(
+				&convertedChars, usernameWtext, 
+				(size_t)30, usernameText, 
+				strlen(usernameText) + 1);
+
+	char userBalText[30];
+	snprintf(userBalText, 30, "Balance: $%d", user->getBalance());
+	wchar_t userBalWtext[30];
+	mbstowcs_s(
+				&convertedChars, userBalWtext, 
+				(size_t)30, userBalText, 
+				strlen(userBalText) + 1);
 
 	//
 	// Set table username and user balance
 	//
-	SetWindowText(hStaticTableUsername, lpcwUsername);
-	SetWindowText(hStaticTableUserBalance, L"test");
+	SetWindowText(hStaticTableUsername, usernameWtext);
+	SetWindowText(hStaticTableUserBalance, userBalWtext);
 
 	ShowWindow(hStaticTableUsername, SW_SHOW);
 	ShowWindow(hStaticTableUserBalance, SW_SHOW);
 
 	ShowWindow(hBankButton, SW_SHOW);
 	ShowWindow(hProfileButton, SW_SHOW);
+	ShowWindow(hLogoutButton, SW_SHOW);
 
 	ShowWindow(hStaticBetAmount, SW_SHOW);
 	ShowWindow(hTextboxBetAmount, SW_SHOW);
@@ -203,6 +249,8 @@ void Table::Paint(HDC hdc) {
 
 		EnableWindow(hBankButton, true);
 		EnableWindow(hProfileButton, true);
+		EnableWindow(hLogoutButton, true);
+
 		EnableWindow(hDealButton, true);
 		EnableWindow(hTextboxBetAmount, true);
 
@@ -211,8 +259,11 @@ void Table::Paint(HDC hdc) {
 
 	}
 	else if (_tableState == TABLE_STATE_PLAYING) {
+
 		EnableWindow(hBankButton, false);
 		EnableWindow(hProfileButton, false);
+		EnableWindow(hLogoutButton, false);
+
 		EnableWindow(hDealButton, false);
 		EnableWindow(hTextboxBetAmount, false);
 
@@ -228,6 +279,7 @@ void Table::Hide() {
 
 	ShowWindow(hBankButton, SW_HIDE);
 	ShowWindow(hProfileButton, SW_HIDE);
+	ShowWindow(hLogoutButton, SW_HIDE);
 
 	ShowWindow(hStaticBetAmount, SW_HIDE);
 	ShowWindow(hTextboxBetAmount, SW_HIDE);
@@ -334,5 +386,31 @@ LRESULT CALLBACK ProfileButtonProc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp)
 
 	}
 
-	return CallWindowProc(oldBankButtonProc, hwnd, msg, wp, lp);
+	return CallWindowProc(oldProfileButtonProc, hwnd, msg, wp, lp);
+}
+
+
+LRESULT CALLBACK LogoutButtonProc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp)
+{
+	if (msg == WM_LBUTTONDOWN) {
+
+		GameEngine* gameEngine = GameEngine::getInstance();
+
+		//
+		// TODO save user with PersistenceManager
+		//
+
+		gameEngine->setUser(NULL);
+
+		//
+		// Set game state back to initial. 
+		//
+		gameEngine->setState(GameEngine::STATE_INITIAL);
+
+		RedrawWindow(GameEngine::getInstance()->getHWnd(), NULL, NULL,
+			RDW_INVALIDATE | RDW_UPDATENOW);
+
+	}
+
+	return CallWindowProc(oldLogoutButtonProc, hwnd, msg, wp, lp);
 }

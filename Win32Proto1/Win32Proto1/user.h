@@ -40,6 +40,7 @@ public:
 	string getUsername();
 	string getPassword();
 	int getBalance();
+	void setBalance(int b);
 
 };
 

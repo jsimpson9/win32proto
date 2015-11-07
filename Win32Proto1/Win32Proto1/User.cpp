@@ -72,4 +72,5 @@ string User::getPassword() { return UI->password; }
 
 int User::getBalance() { return UI->money; }
 
+void User::setBalance(int b) { UI->money = b; }
 
