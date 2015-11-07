@@ -35,6 +35,9 @@ static HWND hStaticBetAmount	= NULL;
 static HWND hStaticTableUsername		= NULL;
 static HWND hStaticTableUserBalance		= NULL;
 
+static HWND hStaticTableDealerMessage = NULL;
+static HWND hStaticTablePlayerMessage = NULL;
+
 
 static HWND hBankButton;
 static HWND hProfileButton;
@@ -62,6 +65,22 @@ void Table::setState(int state) { _tableState = state; }
 int Table::getState() { return _tableState; }
 
 void Table::Create(HWND hWnd, HINSTANCE hInst) { 
+
+	//
+	// Static text dealer message area.
+	//
+	hStaticTableDealerMessage = CreateWindow(L"static", L"", WS_CHILD,
+		10, 10,
+		260, 20,
+		hWnd, NULL, NULL, NULL);
+
+	//
+	// Static text player message area.
+	//
+	hStaticTablePlayerMessage = CreateWindow(L"static", L"", WS_CHILD,
+		10, 300,
+		260, 20,
+		hWnd, NULL, NULL, NULL);
 
 	//
 	// Static text Username
@@ -184,11 +203,25 @@ void Table::Create(HWND hWnd, HINSTANCE hInst) {
 
 void Table::Paint(HDC hdc) {
 
+	//
+	// User for the various string conversion calls ugh
+	//
+	size_t convertedChars = 0;
+
 	if (_dealerHand != NULL) {
-		_dealerHand->Paint(hdc, 10, 10);
+		_dealerHand->Paint(hdc, 10, 40);
+
+		updateHandMessage(hStaticTableDealerMessage,
+							"Dealer",
+							_dealerHand);
 	}
+
 	if (_playerHand != NULL) {
-		_playerHand->Paint(hdc, 10, 300);
+		_playerHand->Paint(hdc, 10, 330);
+
+		updateHandMessage(hStaticTablePlayerMessage,
+							"Player",
+							_playerHand);
 	}
 
 	GameEngine* gameEngine = GameEngine::getInstance();
@@ -204,7 +237,6 @@ void Table::Paint(HDC hdc) {
 	// Thanks C++ !!!
 	//
 
-	size_t convertedChars = 0;
 
 	char usernameText[30];
 	snprintf(usernameText, 30, "User: %s", sUsername.c_str());
@@ -247,6 +279,9 @@ void Table::Paint(HDC hdc) {
 	//
 	if (_tableState == TABLE_STATE_READY) {
 
+		ShowWindow(hStaticTableDealerMessage, SW_HIDE);
+		ShowWindow(hStaticTablePlayerMessage, SW_HIDE);
+
 		EnableWindow(hBankButton, true);
 		EnableWindow(hProfileButton, true);
 		EnableWindow(hLogoutButton, true);
@@ -259,6 +294,9 @@ void Table::Paint(HDC hdc) {
 
 	}
 	else if (_tableState == TABLE_STATE_PLAYING) {
+
+		ShowWindow(hStaticTableDealerMessage, SW_SHOW);
+		ShowWindow(hStaticTablePlayerMessage, SW_SHOW);
 
 		EnableWindow(hBankButton, false);
 		EnableWindow(hProfileButton, false);
@@ -273,6 +311,9 @@ void Table::Paint(HDC hdc) {
 }
 
 void Table::Hide() { 
+
+	ShowWindow(hStaticTableDealerMessage, SW_HIDE);
+	ShowWindow(hStaticTablePlayerMessage, SW_HIDE);
 
 	ShowWindow(hStaticTableUsername, SW_HIDE);
 	ShowWindow(hStaticTableUserBalance, SW_HIDE);
@@ -289,6 +330,53 @@ void Table::Hide() {
 	ShowWindow(hStandButton, SW_HIDE);
 
 }
+
+/**
+ *
+ * Update the text area above the rendered Hand of Cards
+ * to reflect the overall value of the hand. 
+ *
+ */
+void Table::updateHandMessage(
+								HWND textarea,
+								char* name,
+								Hand* hand) {
+
+	size_t convertedChars = 0;
+
+	if (hand == NULL) { return; }
+
+	std::vector<int>* vals = hand->GetValues();
+
+	int val1 = vals->at(0);
+	int val2 = 0;
+
+	if (vals->size() > 1) {
+		val2 = vals->at(1);
+	}
+
+	char messageText[50];
+	if (val2 == 0) {
+		snprintf(messageText, 50, "%s %d",
+			name,
+			val1);
+	}
+	else {
+		snprintf(messageText, 50, "%s %d (or %d)",
+			name,
+			val2,
+			val1);
+	}
+	wchar_t messageWtext[30];
+	mbstowcs_s(
+		&convertedChars, messageWtext,
+		(size_t)30, messageText,
+		strlen(messageText) + 1);
+
+	SetWindowText(textarea, messageWtext);
+
+}
+
 
 Hand* Table::getDealerHand() { return _dealerHand; }
 
@@ -349,6 +437,14 @@ LRESULT CALLBACK HitButtonProc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp)
 	if (msg == WM_LBUTTONDOWN) {
 
 		PlaySound(L"sound-flipcard.wav", NULL, SND_FILENAME | SND_ASYNC);
+
+		GameEngine* gameEngine = GameEngine::getInstance();
+		Table* table = gameEngine->getTable();
+		Hand* playerHand = table->getPlayerHand();
+		playerHand->dealCard(false);
+
+		RedrawWindow(gameEngine->getHWnd(), NULL, NULL,
+			RDW_INVALIDATE | RDW_UPDATENOW);
 
 	}
 

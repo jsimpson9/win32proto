@@ -17,6 +17,11 @@ private:
 
 	int _tableState;
 
+	void updateHandMessage(
+							HWND textarea,
+							char* name,
+							Hand* hand);
+
 public:
 	
 	static constexpr int TABLE_WIDTH	= 600;

@@ -37,6 +37,14 @@ std::vector<int>* Hand::GetValues() {
 	int value = 0;
 	for (unsigned int i = 0; i < _cards->size(); i++) {
 		Card* card = _cards->at(i);
+
+		//
+		// Do not count dealer's face down cards. 
+		//
+		if (card->isFacedown()) {
+			continue;
+		}
+
 		value += card->GetValue();
 		if (card->GetValue() == 1) {
 			//
@@ -48,9 +56,11 @@ std::vector<int>* Hand::GetValues() {
 	ret->push_back(value);
 
 	if (foundAce) {
-		// Consider the case where one of the aces is used as 11.
-		value += 10;
-		ret->push_back(value);
+		if ((value + 10) < 22) {
+			// Consider the case where one of the aces is used as 11.
+			value += 10;
+			ret->push_back(value);
+		}
 	}
 
 	return ret;
@@ -71,6 +81,11 @@ bool Hand::isBlackjack() {
 
 	if (!isBusted()) {
 		std::vector<int>* values = GetValues();
+
+		if (values->size() != 2) {
+			return false;
+		}
+
 		for (int i = 0; i < values->size(); i++) {
 			int val = values->at(i);
 			if (val == 21) {
@@ -95,7 +110,14 @@ void Hand::Paint(HDC hdc, int x, int y) {
 		Card* card = _cards->at(i);
 		card->Paint(hdc, x + xOffset, y + yOffset);
 		xOffset += 20;
-		yOffset += 20;
+
+		//
+		// Only add y offset after first card. 
+		//
+		if (i == 0) {
+			yOffset += 20;
+		}
+
 	}
 
 }
