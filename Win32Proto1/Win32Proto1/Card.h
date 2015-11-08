@@ -32,6 +32,7 @@ public:
 	int GetValue();
 
 	bool isFacedown();
+	void setFacedown(bool b);
 
 	static constexpr int CLUBS		= 1;
 	static constexpr int DIAMONDS	= 2;

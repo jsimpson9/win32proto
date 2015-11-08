@@ -40,6 +40,11 @@ bool Card::isFacedown() {
 	return _isFacedown;
 }
 
+void Card::setFacedown(bool b) {
+	_isFacedown = b;
+}
+
+
 //
 // More notes on Handle to Device Context (HDC) and implementing
 // a Paint() method

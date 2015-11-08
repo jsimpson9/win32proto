@@ -1,4 +1,5 @@
 #include <windows.h>
+
 #include "Table.h"
 #include "GameEngine.h"
 #include "Hand.h"
@@ -453,6 +454,67 @@ LRESULT CALLBACK HitButtonProc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp)
 
 LRESULT CALLBACK StandButtonProc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp)
 {
+	if (msg == WM_LBUTTONDOWN) {
+
+		GameEngine* gameEngine = GameEngine::getInstance();
+		
+		Table* table = gameEngine->getTable();
+
+		table->setState(TABLE_STATE_STANDING);
+		Hand* dealerHand = table->getDealerHand();
+
+		//
+		// Flip over the first card. 
+		//
+		dealerHand->GetCards()->at(0)->setFacedown(false);
+		PlaySound(L"sound-flipcard.wav", NULL, SND_FILENAME | SND_ASYNC);
+
+		RedrawWindow(gameEngine->getHWnd(), NULL, NULL,
+			RDW_INVALIDATE | RDW_UPDATENOW);
+
+		Sleep(500);
+
+		//
+		// See if we need additional cards.
+		//
+		while (true) {
+			std::vector<int>* vals = dealerHand->GetValues();
+
+			bool done = false;
+
+			for (int i = 0; i < vals->size(); i++) {
+				// Dealer must stop taking cards
+				// if he has a value of 17 or higher.
+				if (vals->at(i) >= 17) {
+					done = true;
+					break;
+				}
+			}
+
+			if (done) {
+				break;
+			}
+
+			PlaySound(L"sound-flipcard.wav", NULL, SND_FILENAME | SND_ASYNC);
+
+			dealerHand->dealCard(false);
+
+			RedrawWindow(gameEngine->getHWnd(), NULL, NULL,
+				RDW_INVALIDATE | RDW_UPDATENOW);
+			
+			Sleep(500);
+		}
+
+		//
+		// Determine winner. Update balance amounts.
+		//
+
+		table->setState(TABLE_STATE_READY);
+
+		RedrawWindow(gameEngine->getHWnd(), NULL, NULL,
+			RDW_INVALIDATE | RDW_UPDATENOW);
+
+	}
 
 	return CallWindowProc(oldStandButtonProc, hwnd, msg, wp, lp);
 }
