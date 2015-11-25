@@ -481,7 +481,7 @@ LRESULT CALLBACK DealButtonProc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp)
 		User* user = GameEngine::getInstance()->getUser();
 
 		// Can player bet this much?
-		if(bet > user->getBalance()) {
+		if (bet > user->getBalance()) {
 			MessageBox(
 				GameEngine::getInstance()->getHWnd(),
 				L"Insufficient funds available to place this bet.",
@@ -518,7 +518,19 @@ LRESULT CALLBACK DealButtonProc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp)
 
 		PlaySound(L"sound-chips.wav", NULL, SND_FILENAME | SND_ASYNC);
 
-		table->setState(TABLE_STATE_PLAYING);
+		//
+		// Check if we have blackjack, if so player
+		// wins right away. Otherwise move to substate 
+		// "playing"
+		//
+		if (playerHand->isBlackjack()) {
+			table->setState(TABLE_STATE_FINISHED);
+			table->updateTextarea(hStaticTableMiddleMessage, "Blackjack! Player Wins.");
+			PlaySound(L"sound-yay.wav", NULL, SND_FILENAME | SND_ASYNC);
+
+		} else {
+			table->setState(TABLE_STATE_PLAYING);
+		}	
 
 		//
 		// Force redraw of window, which should now render the new
@@ -702,10 +714,14 @@ LRESULT CALLBACK ProfileButtonProc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp)
 {
 	if (msg == WM_LBUTTONDOWN) {
 
-		GameEngine::getInstance()->setState(GameEngine::STATE_VIEW_PROFILE);
+		//
+		// For DEMO purpose, disable this button.
+		// There is no view here available at this time. 
+		//
+		// GameEngine::getInstance()->setState(GameEngine::STATE_VIEW_PROFILE);
 
-		RedrawWindow(GameEngine::getInstance()->getHWnd(), NULL, NULL,
-			RDW_INVALIDATE | RDW_UPDATENOW);
+		// RedrawWindow(GameEngine::getInstance()->getHWnd(), NULL, NULL,
+		//	RDW_INVALIDATE | RDW_UPDATENOW);
 
 	}
 
