@@ -129,3 +129,8 @@ void Hand::dealCard(bool isFacedown) {
 	_cards->push_back(card);
 }
 
+int Hand::getBetAmount() { return _betAmount;  }
+
+void Hand::setBetAmount(int amount) { _betAmount = amount; }
+
+

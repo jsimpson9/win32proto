@@ -1,4 +1,5 @@
 #include <windows.h>
+#include <tchar.h>
 
 #include "Table.h"
 #include "GameEngine.h"
@@ -38,6 +39,7 @@ static HWND hStaticTableUserBalance		= NULL;
 
 static HWND hStaticTableDealerMessage = NULL;
 static HWND hStaticTablePlayerMessage = NULL;
+static HWND hStaticTableMiddleMessage = NULL;
 
 
 static HWND hBankButton;
@@ -51,6 +53,7 @@ static constexpr int TABLE_STATE_READY		= 0;
 static constexpr int TABLE_STATE_PLAYING	= 1;
 static constexpr int TABLE_STATE_STANDING	= 2;
 static constexpr int TABLE_STATE_DEALER		= 3;
+static constexpr int TABLE_STATE_FINISHED	= 4;
 
 
 Table::Table() {
@@ -72,6 +75,14 @@ void Table::Create(HWND hWnd, HINSTANCE hInst) {
 	//
 	hStaticTableDealerMessage = CreateWindow(L"static", L"", WS_CHILD,
 		10, 10,
+		260, 20,
+		hWnd, NULL, NULL, NULL);
+
+	//
+	// Static text middle message area.
+	//
+	hStaticTableMiddleMessage = CreateWindow(L"static", L"", WS_CHILD,
+		10, 270,
 		260, 20,
 		hWnd, NULL, NULL, NULL);
 
@@ -204,8 +215,11 @@ void Table::Create(HWND hWnd, HINSTANCE hInst) {
 
 void Table::Paint(HDC hdc) {
 
+	GameEngine* gameEngine = GameEngine::getInstance();
+
+
 	//
-	// User for the various string conversion calls ugh
+	// Used for the various string conversion calls ugh
 	//
 	size_t convertedChars = 0;
 
@@ -225,7 +239,14 @@ void Table::Paint(HDC hdc) {
 							_playerHand);
 	}
 
-	GameEngine* gameEngine = GameEngine::getInstance();
+	/*
+	if(_tableState == TABLE_STATE_FINISHED) {
+		updateTextare(hStaticTableDealerMessage,
+			"Dealer",
+			_dealerHand);
+	}
+	*/
+
 	User* user = gameEngine->getUser();
 
 	std::string sUsername = user->getUsername();
@@ -278,7 +299,18 @@ void Table::Paint(HDC hdc) {
 	//
 	// Enable / disable buttons based on table state.
 	//
-	if (_tableState == TABLE_STATE_READY) {
+	// If we are in "ready" state where no game has been played,
+	// or we are in a "finished" state, enable messages and buttons
+	// accordingly.
+	//
+	if (_tableState == TABLE_STATE_READY ||
+		_tableState == TABLE_STATE_FINISHED) {
+
+		if (_tableState == TABLE_STATE_FINISHED) {
+			ShowWindow(hStaticTableDealerMessage, SW_SHOW);
+			ShowWindow(hStaticTablePlayerMessage, SW_SHOW);
+			ShowWindow(hStaticTableMiddleMessage, SW_SHOW);
+		}
 
 		ShowWindow(hStaticTableDealerMessage, SW_HIDE);
 		ShowWindow(hStaticTablePlayerMessage, SW_HIDE);
@@ -298,6 +330,7 @@ void Table::Paint(HDC hdc) {
 
 		ShowWindow(hStaticTableDealerMessage, SW_SHOW);
 		ShowWindow(hStaticTablePlayerMessage, SW_SHOW);
+		ShowWindow(hStaticTableMiddleMessage, SW_HIDE);
 
 		EnableWindow(hBankButton, false);
 		EnableWindow(hProfileButton, false);
@@ -315,6 +348,7 @@ void Table::Hide() {
 
 	ShowWindow(hStaticTableDealerMessage, SW_HIDE);
 	ShowWindow(hStaticTablePlayerMessage, SW_HIDE);
+	ShowWindow(hStaticTableMiddleMessage, SW_HIDE);
 
 	ShowWindow(hStaticTableUsername, SW_HIDE);
 	ShowWindow(hStaticTableUserBalance, SW_HIDE);
@@ -329,6 +363,32 @@ void Table::Hide() {
 	ShowWindow(hDealButton, SW_HIDE);
 	ShowWindow(hHitButton, SW_HIDE);
 	ShowWindow(hStandButton, SW_HIDE);
+
+}
+
+/**
+*
+* Update the specified text area with the specified message. 
+*
+*/
+void Table::updateTextarea(
+								HWND textarea,
+								char* message) {
+
+	size_t convertedChars = 0;
+
+
+	char messageText[50];
+
+	snprintf(messageText, 50, message);
+	
+	wchar_t messageWtext[30];
+	mbstowcs_s(
+		&convertedChars, messageWtext,
+		(size_t)30, messageText,
+		strlen(messageText) + 1);
+
+	SetWindowText(textarea, messageWtext);
 
 }
 
@@ -394,10 +454,54 @@ LRESULT CALLBACK DealButtonProc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp)
 
 	case WM_LBUTTONDOWN:
 
+		TCHAR buff[64];
+		GetWindowText(hTextboxBetAmount, buff, 20);
+
+		int bet = _ttoi(buff);
+
+		/*
+		for (int i = 0; buff[i] != NULL; i++) {
+			if (! std::isdigit(buff[i]) ) {
+				MessageBox(
+					GameEngine::getInstance()->getHWnd(),
+					L"Invalid bet amount.",
+					L"Error",
+					NULL);
+
+				return 0;
+			}
+		}
+		*/
+
+		// int bet = atoi(buff);
+
 		Table* table = GameEngine::getInstance()->getTable();
+		User* user = GameEngine::getInstance()->getUser();
+
+		// Can player bet this much?
+		if(bet > user->getBalance()) {
+			MessageBox(
+				GameEngine::getInstance()->getHWnd(),
+				L"Insufficient funds available to place this bet.",
+				L"Error",
+				NULL);
+			return 0;
+		}
+
+		if (bet == 0) {
+			MessageBox(
+				GameEngine::getInstance()->getHWnd(),
+				L"Must bet more than $0.",
+				L"Error",
+				NULL);
+			return 0;
+		}
 
 		Hand* dealerHand = new Hand();
 		Hand* playerHand = new Hand();
+
+		playerHand->setBetAmount(bet);
+		user->setBalance(user->getBalance() - bet);
 
 		dealerHand->dealCard(true);
 		dealerHand->dealCard(false);
@@ -444,6 +548,12 @@ LRESULT CALLBACK HitButtonProc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp)
 		Hand* playerHand = table->getPlayerHand();
 		playerHand->dealCard(false);
 
+		// Check for bust. 
+		if (playerHand->isBusted()) {
+			table->setState(TABLE_STATE_FINISHED);
+
+		}
+
 		RedrawWindow(gameEngine->getHWnd(), NULL, NULL,
 			RDW_INVALIDATE | RDW_UPDATENOW);
 
@@ -458,10 +568,12 @@ LRESULT CALLBACK StandButtonProc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp)
 
 		GameEngine* gameEngine = GameEngine::getInstance();
 		
+		User* user = gameEngine->getUser();
 		Table* table = gameEngine->getTable();
 
 		table->setState(TABLE_STATE_STANDING);
 		Hand* dealerHand = table->getDealerHand();
+		Hand* playerHand = table->getPlayerHand();
 
 		//
 		// Flip over the first card. 
@@ -509,7 +621,57 @@ LRESULT CALLBACK StandButtonProc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp)
 		// Determine winner. Update balance amounts.
 		//
 
-		table->setState(TABLE_STATE_READY);
+		// table->setState(TABLE_STATE_READY);
+
+		std::vector<int>* dealerValues = dealerHand->GetValues();
+		std::vector<int>* playerValues = playerHand->GetValues();
+		int dealerFinal = 0;
+		int playerFinal = 0;
+
+		for (int i = 0; i < dealerValues->size(); i++) {
+			if (dealerValues->at(i) > dealerFinal &&
+				dealerValues->at(i) < 22) {
+				dealerFinal = dealerValues->at(i);
+			}
+		}
+
+		for (int i = 0; i < playerValues->size(); i++) {
+			if (playerValues->at(i) > playerFinal &&
+				playerValues->at(i) < 22) {
+				playerFinal = playerValues->at(i);
+			}
+		}
+
+		table->setState(TABLE_STATE_FINISHED);
+
+		// If values are same, this is a push. 
+		if (dealerFinal == playerFinal) {
+
+			table->updateTextarea(hStaticTableMiddleMessage, "Push");
+
+			// Return player's bet money.
+			int bet = playerHand->getBetAmount();
+
+			user->setBalance(user->getBalance() + bet);
+
+		} else if (dealerFinal < playerFinal) {
+
+			// Player wins, return bet and winning.
+
+			table->updateTextarea(hStaticTableMiddleMessage, "Player Wins!");
+
+			int bet = playerHand->getBetAmount();
+
+			user->setBalance(user->getBalance() + (bet*2) );
+
+		}
+		else if (dealerFinal > playerFinal) {
+
+			// No need to update cash. Has already been deducted
+			// at time of bet. Update the middle message area.
+			table->updateTextarea(hStaticTableMiddleMessage, "Dealer Wins.");
+
+		}
 
 		RedrawWindow(gameEngine->getHWnd(), NULL, NULL,
 			RDW_INVALIDATE | RDW_UPDATENOW);

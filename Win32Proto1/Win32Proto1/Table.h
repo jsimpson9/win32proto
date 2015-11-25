@@ -22,6 +22,8 @@ private:
 							char* name,
 							Hand* hand);
 
+
+
 public:
 	
 	static constexpr int TABLE_WIDTH	= 600;
@@ -44,6 +46,12 @@ public:
 	void setState(int state);
 
 	int getState(); 
+
+	void updateTextarea(
+						HWND textarea,
+						char* message);
+
+
 };
 
 #endif

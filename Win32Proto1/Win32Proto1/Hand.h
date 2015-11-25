@@ -11,6 +11,8 @@ class Hand
 
 private:
  
+	int _betAmount;
+
 	std::vector<Card*>* _cards;
 
 public:
@@ -31,6 +33,10 @@ public:
 	bool isBlackjack();
 
 	void dealCard(bool isFacedown);
+
+	int getBetAmount();
+	void setBetAmount(int amount);
+
 };
 
 #endif
