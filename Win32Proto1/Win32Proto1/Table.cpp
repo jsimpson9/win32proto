@@ -310,10 +310,14 @@ void Table::Paint(HDC hdc) {
 			ShowWindow(hStaticTableDealerMessage, SW_SHOW);
 			ShowWindow(hStaticTablePlayerMessage, SW_SHOW);
 			ShowWindow(hStaticTableMiddleMessage, SW_SHOW);
+		} else {
+			//
+			// Inital state. No messages.
+			//
+			ShowWindow(hStaticTableDealerMessage, SW_HIDE);
+			ShowWindow(hStaticTablePlayerMessage, SW_HIDE);
+			ShowWindow(hStaticTableMiddleMessage, SW_HIDE);
 		}
-
-		ShowWindow(hStaticTableDealerMessage, SW_HIDE);
-		ShowWindow(hStaticTablePlayerMessage, SW_HIDE);
 
 		EnableWindow(hBankButton, true);
 		EnableWindow(hProfileButton, true);
@@ -450,9 +454,7 @@ void Table::setPlayerHand(Hand* hand) { _playerHand = hand; }
 LRESULT CALLBACK DealButtonProc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp)
 {
 
-	switch (msg) {
-
-	case WM_LBUTTONDOWN:
+	if (msg == WM_LBUTTONDOWN) {
 
 		TCHAR buff[64];
 		GetWindowText(hTextboxBetAmount, buff, 20);
@@ -551,6 +553,7 @@ LRESULT CALLBACK HitButtonProc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp)
 		// Check for bust. 
 		if (playerHand->isBusted()) {
 			table->setState(TABLE_STATE_FINISHED);
+			table->updateTextarea(hStaticTableMiddleMessage, "Busted. Dealer Wins.");
 
 		}
 
