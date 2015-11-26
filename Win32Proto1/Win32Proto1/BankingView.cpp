@@ -1,5 +1,6 @@
 #include "BankingView.h"
 #include "GameEngine.h"
+#include "Utils.h"
 
 #define BUTTON_TRANSFER_ID				6001
 #define BUTTON_CANCEL_BANKING_ID		6002
@@ -39,7 +40,7 @@ void BankingView::Create(HWND hWnd, HINSTANCE hInst) {
 	//
 	// TODO get current balance from User object
 	//
-	hStaticBalance = CreateWindow(L"static", L"Current Balance: $100", WS_CHILD,
+	hStaticBalance = CreateWindow(L"static", L"Current Balance: ", WS_CHILD,
 		50, 40, 300, 30,
 		hWnd, NULL, NULL, NULL);
 
@@ -97,6 +98,12 @@ void BankingView::Paint(HDC hdc) {
 	if (!_isHidden) {
 		return;
 	}
+
+	User* user = GameEngine::getInstance()->getUser();
+
+	char buff[50];
+	snprintf(buff, 50, "Current Balance: $%d", user->getBalance());
+	updateTextarea(hStaticBalance, buff);
 
 
 	//

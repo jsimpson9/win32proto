@@ -5,6 +5,7 @@
 #include "GameEngine.h"
 #include "Hand.h"
 #include "User.h"
+#include "Utils.h"
 
 #define BUTTON_HIT_ID					3001
 #define BUTTON_STAND_ID					3002
@@ -370,31 +371,7 @@ void Table::Hide() {
 
 }
 
-/**
-*
-* Update the specified text area with the specified message. 
-*
-*/
-void Table::updateTextarea(
-								HWND textarea,
-								char* message) {
 
-	size_t convertedChars = 0;
-
-
-	char messageText[50];
-
-	snprintf(messageText, 50, message);
-	
-	wchar_t messageWtext[30];
-	mbstowcs_s(
-		&convertedChars, messageWtext,
-		(size_t)30, messageText,
-		strlen(messageText) + 1);
-
-	SetWindowText(textarea, messageWtext);
-
-}
 
 /**
  *
@@ -525,8 +502,13 @@ LRESULT CALLBACK DealButtonProc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp)
 		//
 		if (playerHand->isBlackjack()) {
 			table->setState(TABLE_STATE_FINISHED);
-			table->updateTextarea(hStaticTableMiddleMessage, "Blackjack! Player Wins.");
+			updateTextarea(hStaticTableMiddleMessage, "Blackjack! Player Wins.");
+			
+			// Play YAY sound
 			PlaySound(L"sound-yay.wav", NULL, SND_FILENAME | SND_ASYNC);
+
+			// Update user balance.
+			user->setBalance(user->getBalance() + (bet*2));
 
 		} else {
 			table->setState(TABLE_STATE_PLAYING);
@@ -565,7 +547,7 @@ LRESULT CALLBACK HitButtonProc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp)
 		// Check for bust. 
 		if (playerHand->isBusted()) {
 			table->setState(TABLE_STATE_FINISHED);
-			table->updateTextarea(hStaticTableMiddleMessage, "Busted. Dealer Wins.");
+			updateTextarea(hStaticTableMiddleMessage, "Busted. Dealer Wins.");
 
 		}
 
@@ -662,7 +644,7 @@ LRESULT CALLBACK StandButtonProc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp)
 		// If values are same, this is a push. 
 		if (dealerFinal == playerFinal) {
 
-			table->updateTextarea(hStaticTableMiddleMessage, "Push");
+			updateTextarea(hStaticTableMiddleMessage, "Push");
 
 			// Return player's bet money.
 			int bet = playerHand->getBetAmount();
@@ -673,7 +655,7 @@ LRESULT CALLBACK StandButtonProc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp)
 
 			// Player wins, return bet and winning.
 
-			table->updateTextarea(hStaticTableMiddleMessage, "Player Wins!");
+			updateTextarea(hStaticTableMiddleMessage, "Player Wins!");
 
 			int bet = playerHand->getBetAmount();
 
@@ -684,7 +666,7 @@ LRESULT CALLBACK StandButtonProc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp)
 
 			// No need to update cash. Has already been deducted
 			// at time of bet. Update the middle message area.
-			table->updateTextarea(hStaticTableMiddleMessage, "Dealer Wins.");
+			updateTextarea(hStaticTableMiddleMessage, "Dealer Wins.");
 
 		}
 
@@ -745,6 +727,16 @@ LRESULT CALLBACK LogoutButtonProc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp)
 		// Set game state back to initial. 
 		//
 		gameEngine->setState(GameEngine::STATE_INITIAL);
+
+		//
+		// Reset table state
+		//
+		Table* table = GameEngine::getInstance()->getTable();
+		table->setState(TABLE_STATE_READY);
+		delete table->getDealerHand();
+		delete table->getPlayerHand();
+		table->setDealerHand(NULL);
+		table->setPlayerHand(NULL);
 
 		RedrawWindow(GameEngine::getInstance()->getHWnd(), NULL, NULL,
 			RDW_INVALIDATE | RDW_UPDATENOW);

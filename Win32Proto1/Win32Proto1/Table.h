@@ -47,10 +47,6 @@ public:
 
 	int getState(); 
 
-	void updateTextarea(
-						HWND textarea,
-						char* message);
-
 
 };
 
