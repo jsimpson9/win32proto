@@ -19,12 +19,15 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="AchievementManager.cpp" />
     <ClCompile Include="BankingView.cpp" />
+    <ClCompile Include="BankManager.cpp" />
     <ClCompile Include="Card.cpp" />
     <ClCompile Include="CreateProfileView.cpp" />
     <ClCompile Include="GameEngine.cpp" />
     <ClCompile Include="Hand.cpp" />
     <ClCompile Include="LoginView.cpp" />
+    <ClCompile Include="PersistenceManager.cpp" />
     <ClCompile Include="Table.cpp" />
     <ClCompile Include="User.cpp" />
     <ClCompile Include="Utils.cpp" />
@@ -33,12 +36,15 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AbstractViewComponent.h" />
+    <ClInclude Include="AchievementManager.h" />
     <ClInclude Include="BankingView.h" />
+    <ClInclude Include="BankManager.h" />
     <ClInclude Include="Card.h" />
     <ClInclude Include="CreateProfileView.h" />
     <ClInclude Include="GameEngine.h" />
     <ClInclude Include="Hand.h" />
     <ClInclude Include="LoginView.h" />
+    <ClInclude Include="PersistenceManager.h" />
     <ClInclude Include="Table.h" />
     <ClInclude Include="User.h" />
     <ClInclude Include="Utils.h" />
